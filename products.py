@@ -97,12 +97,18 @@ class NonStockedProduct(Product):
         '''Buys a given quantity of the product.
         Returns the total price (float) of the purchase.
         No need to update the quantity in stock for NonStockedProduct .'''
-        # calculate the price
-        total_price = self.price * quantity
+        # Calculate total price considering promotions
+        if self.promotion:
+            total_price = self.promotion.apply_promotion(self, quantity)
+        else:
+            total_price = quantity * self.price
         return float(total_price)
     def show(self):
         '''Returns a string that represents the product'''
-        return f"{self.name}, Price: {self.price}, Quantity: Unlimited availability"
+        promo_info = ""
+        if self.promotion:
+            promo_info = f", Promotion: {self.promotion.name}"
+        return f"{self.name}, Price: {self.price}, Quantity: Unlimited availability, {promo_info}"
 
 class LimitedProduct(Product):
     '''Some products can only be purchased X times in an order. For example - a shipping fee
@@ -148,7 +154,7 @@ class Promotion(ABC):
         :return: The total price after applying the promotion.'''
         pass
 
-class PercentageDiscount(Promotion):
+class PercentDiscount(Promotion):
     '''Represents a percentage discount promotion.'''
 
     def __init__(self, name: str, percent: float):
@@ -172,12 +178,12 @@ class PercentageDiscount(Promotion):
         return total_price - discount_amount
 
 
-class SecondItemHalfPrice(Promotion):
+class SecondHalfPrice(Promotion):
     '''Represents a promotion where the second item is half price.'''
 
-    def __init__(self):
+    def __init__(self, name):
         '''Initialize the second item half price promotion.'''
-        super().__init__("Second Item at Half Price")
+        super().__init__(name)
 
     def apply_promotion(self, product, quantity) -> float:
         '''
@@ -197,12 +203,12 @@ class SecondItemHalfPrice(Promotion):
         return total_price
 
 
-class BuyTwoGetOneFree(Promotion):
+class ThirdOneFree(Promotion):
     '''Represents a promotion where every third item is free.'''
 
-    def __init__(self):
+    def __init__(self, name):
         '''Initialize the buy two, get one free promotion.'''
-        super().__init__("Buy 2, Get 1 Free")
+        super().__init__(name)
 
     def apply_promotion(self, product, quantity) -> float:
         '''
