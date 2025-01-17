@@ -1,4 +1,4 @@
-from products import Product
+from products import Product, LimitedProduct, NonStockedProduct
 
 class Store:
     ''' Holds a class variable as a list of all products that exist in a store'''

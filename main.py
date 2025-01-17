@@ -1,5 +1,5 @@
 import store
-from products import Product
+from products import Product, NonStockedProduct, LimitedProduct
 from store import Store
 
 def start():
@@ -28,7 +28,19 @@ def product_amount_is_available(product_choice, products, product_amount, shoppi
     selected_product = products[selected_product_index]
     product_amount = int(product_amount)
 
-    # add tuple (product, amount) to shopping list, if amount available
+    # check for unlimited availability
+    if type(selected_product) == type(NonStockedProduct("Windows License", price=125)):
+        shopping_list.append((selected_product, product_amount))
+        print("Product added to list!")
+        return True
+
+    if type(selected_product) == type(LimitedProduct("Shipping", price=10, quantity=250, maximum=1)):
+        if product_amount > selected_product.maximum:
+            raise ValueError (f"Can be purchased only {selected_product.maximum} times per order.")
+        shopping_list.append((selected_product, product_amount))
+        print("Product added to list!")
+        return True
+# add tuple (product, amount) to shopping list, if amount available
     if product_amount <= selected_product.get_quantity():
         shopping_list.append((selected_product, product_amount))
         print("Product added to list!")
@@ -40,10 +52,14 @@ def product_amount_is_available(product_choice, products, product_amount, shoppi
 def main():
     '''Runs the program, handles user input'''
     # setup initial stock of inventory
-    product_list = [ Product("MacBook Air M2", price=1450, quantity=100),
-                 Product("Bose QuietComfort Earbuds", price=250, quantity=500),
-                 Product("Google Pixel 7", price=500, quantity=250)
-               ]
+    # setup initial stock of inventory
+    product_list = [Product("MacBook Air M2", price=1450, quantity=100),
+                    Product("Bose QuietComfort Earbuds", price=250, quantity=500),
+                    Product("Google Pixel 7", price=500, quantity=250),
+                    NonStockedProduct("Windows License", price=125),
+                    LimitedProduct("Shipping", price=10, quantity=250, maximum=1)
+                    ]
+
     best_buy = Store(product_list)
     products_var = best_buy.get_all_products()
 
