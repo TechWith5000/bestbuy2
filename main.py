@@ -102,9 +102,8 @@ def main():
                         if not product_amount_is_available(product_choice, products_var, product_amount, shopping_list):
                             continue
 
-
-                    except ValueError:
-                        print("Error adding product!")
+                    except ValueError as e: # ensure exceptions retain their specific message
+                        print(f"Error adding product: {e}")
                         continue
 
                 # check if the outer loop terminates and the inner loop therefore should terminate as well
